@@ -12,13 +12,11 @@ export const ADDR = ADDRESS[chain.id]!;
 export const CONFIG = {
 	[mainnet.id]: {
 		rpc: process.env.RPC_URL_MAINNET ?? mainnet.rpcUrls.default.http[0],
-		blockrange: undefined,
 		maxRequestsPerSecond: 5,
 		pollingInterval: 5_000,
 	},
 	[polygon.id]: {
 		rpc: process.env.RPC_URL_POLYGON ?? polygon.rpcUrls.default.http[0],
-		blockrange: undefined,
 		maxRequestsPerSecond: 5,
 		pollingInterval: 5_000,
 	},
@@ -54,7 +52,6 @@ export default createConfig({
 			abi: MembershipFactoryABI,
 			address: ADDR.membershipFactory,
 			startBlock: START[Id].membership,
-			maxBlockRange: CONFIG[Id].blockrange,
 		},
 		Membership: {
 			network: chain.name,
@@ -65,7 +62,6 @@ export default createConfig({
 				parameter: 'membership',
 			},
 			startBlock: START[Id].membership,
-			maxBlockRange: CONFIG[Id].blockrange,
 		},
 	},
 });

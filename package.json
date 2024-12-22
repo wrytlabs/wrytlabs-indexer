@@ -14,7 +14,7 @@
 	"dependencies": {
 		"@ponder/core": "^0.4.36",
 		"@wrytlabs/manager-core": "^0.0.4",
-		"viem": "^2.13.8"
+		"viem": "^2.21.56"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.2",
