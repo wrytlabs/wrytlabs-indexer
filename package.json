@@ -12,8 +12,8 @@
 		"typecheck": "tsc"
 	},
 	"dependencies": {
-		"@wrytlabs/core": "^0.0.1",
 		"@ponder/core": "^0.4.36",
+		"@wrytlabs/manager-core": "^0.0.4",
 		"viem": "^2.13.8"
 	},
 	"devDependencies": {
