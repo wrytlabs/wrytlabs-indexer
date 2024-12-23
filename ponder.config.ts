@@ -12,12 +12,12 @@ export const ADDR = ADDRESS[chain.id]!;
 export const CONFIG = {
 	[mainnet.id]: {
 		rpc: process.env.RPC_URL_MAINNET ?? mainnet.rpcUrls.default.http[0],
-		maxRequestsPerSecond: 5,
+		maxRequestsPerSecond: 10,
 		pollingInterval: 5_000,
 	},
 	[polygon.id]: {
 		rpc: process.env.RPC_URL_POLYGON ?? polygon.rpcUrls.default.http[0],
-		maxRequestsPerSecond: 5,
+		maxRequestsPerSecond: 10,
 		pollingInterval: 5_000,
 	},
 };
