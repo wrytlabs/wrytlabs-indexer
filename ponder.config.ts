@@ -1,13 +1,14 @@
 import { createConfig } from '@ponder/core';
-import { Address, http } from 'viem';
+import { Address, http, maxUint256 } from 'viem';
 import { mainnet, polygon } from 'viem/chains';
 
-import { ADDRESS, MembershipABI, MembershipFactoryABI } from '@wrytlabs/manager-core';
+import { ADDRESS as ADDRESS_MANAGER, MembershipABI, MembershipFactoryABI } from '@wrytlabs/manager-core';
+import { ADDRESS as ADDRESS_UTILS, LeverageMorphoABI, LeverageMorphoFactoryABI } from '@wrytlabs/frankencoin-utils';
 
 // mainnet (default) or polygon
 export const chain = (process.env.PONDER_PROFILE as string) == 'polygon' ? polygon : mainnet;
 export const Id = chain.id;
-export const ADDR = ADDRESS[chain.id]!;
+export const ADDR = ADDRESS_MANAGER[chain.id]!;
 
 export const CONFIG = {
 	[mainnet.id]: {
@@ -24,18 +25,24 @@ export const CONFIG = {
 
 export const START = {
 	[mainnet.id]: {
-		membership: 0,
+		membership: 999999999999,
+		leverageMorpho: 22101284,
 	},
 	[polygon.id]: {
 		membership: 65794269,
+		leverageMorpho: 0,
 	},
 };
 
-export const FACTORY = {
-	Membership: MembershipFactoryABI.find((a) => a.type === 'event' && a.name === 'Created'),
+export const MembershipFactory = {
+	Created: MembershipFactoryABI.find((a) => a.type === 'event' && a.name === 'Created'),
+};
+export const LeverageMorphoFactory = {
+	Created: LeverageMorphoFactoryABI.find((a) => a.type === 'event' && a.name === 'Created'),
 };
 
-if (FACTORY.Membership === undefined) throw new Error('Membership Factory Event not found.');
+if (MembershipFactory.Created === undefined) throw new Error('Membership Factory Event not found.');
+if (LeverageMorphoFactory.Created === undefined) throw new Error('LeverageMorpho Factory Event not found.');
 
 export default createConfig({
 	networks: {
@@ -47,21 +54,37 @@ export default createConfig({
 		},
 	},
 	contracts: {
-		MembershipFactory: {
+		// MembershipFactory: {
+		// 	network: 'polygon',
+		// 	abi: MembershipFactoryABI,
+		// 	address: ADDR.membershipFactory,
+		// 	startBlock: START[Id].membership,
+		// },
+		// Membership: {
+		// 	network: 'polygon',
+		// 	abi: MembershipABI,
+		// 	factory: {
+		// 		address: ADDR.membershipFactory as Address,
+		// 		event: MembershipFactory!.Created,
+		// 		parameter: 'membership',
+		// 	},
+		// 	startBlock: START[Id].membership,
+		// },
+		LeverageMorphoFactory: {
 			network: chain.name,
-			abi: MembershipFactoryABI,
-			address: ADDR.membershipFactory,
-			startBlock: START[Id].membership,
+			abi: LeverageMorphoFactoryABI,
+			address: ADDRESS_UTILS[Id]!.leverageMorphoFactory,
+			startBlock: START[Id].leverageMorpho,
 		},
-		Membership: {
+		LeverageMorpho: {
 			network: chain.name,
-			abi: MembershipABI,
+			abi: LeverageMorphoABI,
 			factory: {
-				address: ADDR.membershipFactory as Address,
-				event: FACTORY!.Membership,
-				parameter: 'membership',
+				address: ADDRESS_UTILS[Id]!.leverageMorphoFactory,
+				event: LeverageMorphoFactory!.Created,
+				parameter: 'instance',
 			},
-			startBlock: START[Id].membership,
+			startBlock: START[Id].leverageMorpho,
 		},
 	},
 });

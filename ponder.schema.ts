@@ -1,52 +1,64 @@
 import { onchainTable } from '@ponder/core';
 
-export const MembershipFactory = onchainTable('MembershipFactory', (t) => ({
+export const LeverageMorphoFactory = onchainTable('LeverageMorphoFactory', (t) => ({
 	address: t.text().primaryKey(),
-	createdAt: t.integer(),
-	creator: t.text(),
-	txHash: t.text(),
-}));
-
-export const MembershipRoleAdminChanged = onchainTable('MembershipRoleAdminChanged', (t) => ({
-	id: t.text().primaryKey(),
-	address: t.text(),
-	createdAt: t.integer(),
-	creator: t.text(),
-	txHash: t.text(),
-	role: t.text(),
-	previousAdminRole: t.text(),
-	newAdminRole: t.text(),
-}));
-
-export const MembershipRoleGranted = onchainTable('MembershipRoleGranted', (t) => ({
-	id: t.text().primaryKey(),
-	address: t.text(),
-	createdAt: t.integer(),
-	creator: t.text(),
-	txHash: t.text(),
-	role: t.text(),
-	account: t.text(),
-	sender: t.text(),
-}));
-
-export const MembershipRoleRevoked = onchainTable('MembershipRoleRevoked', (t) => ({
-	id: t.text().primaryKey(),
-	address: t.text(),
-	createdAt: t.integer(),
-	creator: t.text(),
-	txHash: t.text(),
-	role: t.text(),
-	account: t.text(),
-	sender: t.text(),
-}));
-
-export const MembershipRolePermission = onchainTable('MembershipRolePermission', (t) => ({
-	id: t.text().primaryKey(),
-	address: t.text(),
-	createdAt: t.integer(),
-	updatedAt: t.integer(),
+	createdAt: t.integer().notNull(),
+	creator: t.text().notNull(),
 	txHash: t.text().notNull(),
-	role: t.text().notNull(),
-	account: t.text().notNull(),
-	permission: t.boolean().notNull(),
+	owner: t.text().notNull(),
+	marketId: t.text().notNull(),
+	loan: t.text().notNull(),
+	loanDecimals: t.integer().notNull(),
+	loanName: t.text().notNull(),
+	loanSymbol: t.text().notNull(),
+	collateral: t.text().notNull(),
+	collateralDecimals: t.integer().notNull(),
+	collateralName: t.text().notNull(),
+	collateralSymbol: t.text().notNull(),
+	oracle: t.text().notNull(),
+	irm: t.text().notNull(),
+	lltv: t.bigint().notNull().notNull(),
+}));
+
+export const LeverageMorphoCollateralFlat = onchainTable('LeverageMorphoCollateralFlat', (t) => ({
+	id: t.text().primaryKey(),
+	address: t.text(),
+	createdAt: t.integer(),
+	txHash: t.text(),
+	amount: t.bigint(),
+	direction: t.boolean(),
+}));
+
+export const LeverageMorphoLoanFlat = onchainTable('LeverageMorphoLoanFlat', (t) => ({
+	id: t.text().primaryKey(),
+	address: t.text(),
+	createdAt: t.integer(),
+	txHash: t.text(),
+	amount: t.bigint(),
+	direction: t.boolean(),
+}));
+
+export const LeverageMorphoExecuteFlat = onchainTable('LeverageMorphoExecuteFlat', (t) => ({
+	id: t.text().primaryKey(),
+	address: t.text(),
+	createdAt: t.integer(),
+	txHash: t.text(),
+	opcode: t.integer(),
+	inputCollateral: t.bigint(),
+	inputLoan: t.bigint(),
+	flash: t.bigint(),
+	swapIn: t.bigint(),
+	swapOut: t.bigint(),
+	provided: t.bigint(),
+	price: t.bigint(),
+}));
+
+export const LeverageMorphoBalance = onchainTable('LeverageMorphoBalance', (t) => ({
+	address: t.text().primaryKey(),
+	updatedAt: t.integer(),
+	txHash: t.text(),
+	inputCollateral: t.bigint(),
+	inputLoan: t.bigint(),
+	borrowed: t.bigint(),
+	repaid: t.bigint(),
 }));
