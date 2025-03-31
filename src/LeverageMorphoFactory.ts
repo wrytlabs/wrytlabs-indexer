@@ -1,5 +1,5 @@
 import { ponder } from '@/generated';
-import { LeverageMorphoFactory } from '../ponder.schema';
+import { Counter, LeverageMorphoFactory } from '../ponder.schema';
 import { erc20Abi } from 'viem';
 
 ponder.on('LeverageMorphoFactory:Created', async ({ event, context }) => {
@@ -56,9 +56,19 @@ ponder.on('LeverageMorphoFactory:Created', async ({ event, context }) => {
 
 	// ---------------------------------------------------------------------------------------
 
+	await context.db
+		.insert(Counter)
+		.values({
+			id: 'LeverageMorphoFactory:Created',
+			amount: 1n,
+		})
+		.onConflictDoUpdate((row) => ({
+			amount: row.amount + 1n,
+		}));
+
 	await context.db.insert(LeverageMorphoFactory).values({
 		address: instance,
-		createdAt: parseInt(event.block.timestamp.toString()),
+		createdAt: event.block.timestamp,
 		creator: event.transaction.from,
 		txHash: event.transaction.hash,
 		owner: event.args.owner,

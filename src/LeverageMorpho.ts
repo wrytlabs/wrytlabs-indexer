@@ -1,72 +1,108 @@
 import { ponder } from '@/generated';
-import { LeverageMorphoBalance, LeverageMorphoCollateralFlat, LeverageMorphoExecuteFlat, LeverageMorphoLoanFlat } from '../ponder.schema';
+import {
+	Counter,
+	LeverageMorphoBalance,
+	LeverageMorphoCollateralFlat,
+	LeverageMorphoExecuteFlat,
+	LeverageMorphoLoanFlat,
+} from '../ponder.schema';
 import { parseEther, parseUnits } from 'viem';
 
 ponder.on('LeverageMorpho:Collateral', async ({ event, context }) => {
-	console.log(event.args);
+	const counter = await context.db
+		.insert(Counter)
+		.values({
+			id: 'LeverageMorpho:Collateral',
+			amount: 1n,
+		})
+		.onConflictDoUpdate((row) => ({
+			amount: row.amount + 1n,
+		}));
 
 	await context.db.insert(LeverageMorphoCollateralFlat).values({
-		id: `${event.log.address}-${event.block.number}`,
+		id: `${event.log.address}-${event.block.number}-${counter.amount}`,
+		count: counter.amount,
 		address: event.log.address,
-		createdAt: parseInt(event.block.timestamp.toString()),
+		createdAt: event.block.timestamp,
 		txHash: event.transaction.hash,
 		amount: event.args.amount,
 		direction: event.args.direction,
 	});
 
-	await context.db
-		.insert(LeverageMorphoBalance)
-		.values({
-			id: `${event.log.address}-${event.block.number}`,
-			address: event.log.address,
-			updatedAt: parseInt(event.block.timestamp.toString()),
-			txHash: event.transaction.hash,
-			inputCollateral: event.args.direction ? -event.args.amount : event.args.amount,
-			inputLoan: 0n,
-		})
-		.onConflictDoUpdate((row) => ({
-			updatedAt: parseInt(event.block.timestamp.toString()),
-			txHash: event.transaction.hash,
-			inputCollateral: (row.inputCollateral ?? 0n) + (event.args.direction ? -event.args.amount : event.args.amount),
-		}));
+	// await context.db
+	// 	.insert(LeverageMorphoBalance)
+	// 	.values({
+	// 		address: event.log.address,
+	// 		updatedAt: event.block.timestamp,
+	// 		txHash: event.transaction.hash,
+	// 		inputCollateral: event.args.direction ? -event.args.amount : event.args.amount,
+	// 		inputLoan: 0n,
+	// 	})
+	// 	.onConflictDoUpdate((row) => ({
+	// 		updatedAt: parseInt(event.block.timestamp.toString()),
+	// 		txHash: event.transaction.hash,
+	// 		inputCollateral: (row.inputCollateral ?? 0n) + (event.args.direction ? -event.args.amount : event.args.amount),
+	// 	}));
 });
 ponder.on('LeverageMorpho:Loan', async ({ event, context }) => {
-	console.log(event.args);
+	const counter = await context.db
+		.insert(Counter)
+		.values({
+			id: 'LeverageMorpho:Loan',
+			amount: 1n,
+		})
+		.onConflictDoUpdate((row) => ({
+			amount: row.amount + 1n,
+		}));
 
 	await context.db.insert(LeverageMorphoLoanFlat).values({
-		id: `${event.log.address}-${event.block.number}`,
+		id: `${event.log.address}-${event.block.number}-${counter.amount}`,
+		count: counter.amount,
 		address: event.log.address,
-		createdAt: parseInt(event.block.timestamp.toString()),
+		createdAt: event.block.timestamp,
 		txHash: event.transaction.hash,
 		amount: event.args.amount,
 		direction: event.args.direction,
 	});
 
-	await context.db
-		.insert(LeverageMorphoBalance)
-		.values({
-			address: event.log.address,
-			updatedAt: parseInt(event.block.timestamp.toString()),
-			txHash: event.transaction.hash,
-			inputCollateral: 0n,
-			inputLoan: 0n,
-		})
-		.onConflictDoUpdate((row) => ({
-			updatedAt: parseInt(event.block.timestamp.toString()),
-			txHash: event.transaction.hash,
-			inputCollateral: (row.inputCollateral ?? 0n) + (event.args.direction ? -event.args.amount : event.args.amount),
-		}));
+	// await context.db
+	// 	.insert(LeverageMorphoBalance)
+	// 	.values({
+	// 		address: event.log.address,
+	// 		updatedAt: event.block.timestamp,
+	// 		txHash: event.transaction.hash,
+	// 		inputCollateral: 0n,
+	// 		inputLoan: 0n,
+	// 	})
+	// 	.onConflictDoUpdate((row) => ({
+	// 		updatedAt: parseInt(event.block.timestamp.toString()),
+	// 		txHash: event.transaction.hash,
+	// 		inputCollateral: (row.inputCollateral ?? 0n) + (event.args.direction ? -event.args.amount : event.args.amount),
+	// 	}));
 });
 ponder.on('LeverageMorpho:Executed', async ({ event, context }) => {
 	console.log(event.args);
+
+	const counter = await context.db
+		.insert(Counter)
+		.values({
+			id: 'LeverageMorpho:Executed',
+			amount: 1n,
+		})
+		.onConflictDoUpdate((row) => ({
+			amount: row.amount + 1n,
+		}));
+
+	const rowId: string = `${event.log.address}-${event.block.number}-${counter.amount}`;
 
 	if (event.args.opcode == 0) {
 		// flash: loan
 		// swap: loan -> collateral
 		await context.db.insert(LeverageMorphoExecuteFlat).values({
-			id: `${event.log.address}-${event.block.number}`,
+			id: rowId,
+			count: counter.amount,
 			address: event.log.address,
-			createdAt: parseInt(event.block.timestamp.toString()),
+			createdAt: event.block.timestamp,
 			txHash: event.transaction.hash,
 			opcode: event.args.opcode,
 			inputLoan: event.args.swapIn - event.args.flash,
@@ -81,9 +117,10 @@ ponder.on('LeverageMorpho:Executed', async ({ event, context }) => {
 		// flash: collateral
 		// swap: collateral --> loan
 		await context.db.insert(LeverageMorphoExecuteFlat).values({
-			id: `${event.log.address}-${event.block.number}`,
+			id: rowId,
+			count: counter.amount,
 			address: event.log.address,
-			createdAt: parseInt(event.block.timestamp.toString()),
+			createdAt: event.block.timestamp,
 			txHash: event.transaction.hash,
 			opcode: event.args.opcode,
 			inputLoan: event.args.swapIn - event.args.flash,
@@ -98,9 +135,10 @@ ponder.on('LeverageMorpho:Executed', async ({ event, context }) => {
 		// flash: loan
 		// swap: collateral --> loan
 		await context.db.insert(LeverageMorphoExecuteFlat).values({
-			id: `${event.log.address}-${event.block.number}`,
+			id: rowId,
+			count: counter.amount,
 			address: event.log.address,
-			createdAt: parseInt(event.block.timestamp.toString()),
+			createdAt: event.block.timestamp,
 			txHash: event.transaction.hash,
 			opcode: event.args.opcode,
 			inputLoan: 0n,
