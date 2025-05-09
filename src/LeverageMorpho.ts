@@ -1,12 +1,7 @@
 import { ponder } from '@/generated';
-import {
-	Counter,
-	LeverageMorphoBalance,
-	LeverageMorphoCollateralFlat,
-	LeverageMorphoExecuteFlat,
-	LeverageMorphoLoanFlat,
-} from '../ponder.schema';
-import { parseEther, parseUnits } from 'viem';
+import { Counter, LeverageMorphoCollateralFlat, LeverageMorphoExecuteFlat, LeverageMorphoLoanFlat } from '../ponder.schema';
+import { parseUnits } from 'viem';
+import { IERC20ABI, IOracleABI } from '@wrytlabs/frankencoin-utils';
 
 ponder.on('LeverageMorpho:Collateral', async ({ event, context }) => {
 	const counter = await context.db
@@ -19,6 +14,24 @@ ponder.on('LeverageMorpho:Collateral', async ({ event, context }) => {
 			amount: row.amount + 1n,
 		}));
 
+	const market = await context.client.readContract({
+		address: event.log.address,
+		abi: context.contracts.LeverageMorpho.abi,
+		functionName: 'market',
+	});
+
+	const oraclePrice = await context.client.readContract({
+		address: market[2],
+		abi: IOracleABI,
+		functionName: 'price',
+	});
+
+	const decimals = await context.client.readContract({
+		address: market[1],
+		abi: IERC20ABI,
+		functionName: 'decimals',
+	});
+
 	await context.db.insert(LeverageMorphoCollateralFlat).values({
 		id: `${event.log.address}-${event.block.number}-${counter.amount}`,
 		count: counter.amount,
@@ -27,6 +40,7 @@ ponder.on('LeverageMorpho:Collateral', async ({ event, context }) => {
 		txHash: event.transaction.hash,
 		amount: event.args.amount,
 		direction: event.args.direction,
+		oracle: oraclePrice / BigInt(10 ** (36 - decimals)),
 	});
 
 	// await context.db
@@ -55,6 +69,24 @@ ponder.on('LeverageMorpho:Loan', async ({ event, context }) => {
 			amount: row.amount + 1n,
 		}));
 
+	const market = await context.client.readContract({
+		address: event.log.address,
+		abi: context.contracts.LeverageMorpho.abi,
+		functionName: 'market',
+	});
+
+	const oraclePrice = await context.client.readContract({
+		address: market[2],
+		abi: IOracleABI,
+		functionName: 'price',
+	});
+
+	const decimals = await context.client.readContract({
+		address: market[1],
+		abi: IERC20ABI,
+		functionName: 'decimals',
+	});
+
 	await context.db.insert(LeverageMorphoLoanFlat).values({
 		id: `${event.log.address}-${event.block.number}-${counter.amount}`,
 		count: counter.amount,
@@ -63,6 +95,7 @@ ponder.on('LeverageMorpho:Loan', async ({ event, context }) => {
 		txHash: event.transaction.hash,
 		amount: event.args.amount,
 		direction: event.args.direction,
+		oracle: parseUnits(String(oraclePrice), 36 - decimals),
 	});
 
 	// await context.db

@@ -33,7 +33,7 @@ export const LeverageMorphoLoanFlat = onchainTable('LeverageMorphoLoanFlat', (t)
 	txHash: t.text().notNull(),
 	amount: t.bigint().notNull(),
 	direction: t.boolean().notNull(),
-	// oracle: t.bigint().notNull(),
+	oracle: t.bigint().notNull(),
 }));
 
 export const LeverageMorphoCollateralFlat = onchainTable('LeverageMorphoCollateralFlat', (t) => ({
@@ -44,7 +44,7 @@ export const LeverageMorphoCollateralFlat = onchainTable('LeverageMorphoCollater
 	txHash: t.text().notNull(),
 	amount: t.bigint().notNull(),
 	direction: t.boolean().notNull(),
-	// oracle: t.bigint().notNull(),
+	oracle: t.bigint().notNull(),
 }));
 
 export const LeverageMorphoExecuteFlat = onchainTable('LeverageMorphoExecuteFlat', (t) => ({
