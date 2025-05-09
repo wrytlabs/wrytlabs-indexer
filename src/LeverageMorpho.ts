@@ -95,7 +95,7 @@ ponder.on('LeverageMorpho:Loan', async ({ event, context }) => {
 		txHash: event.transaction.hash,
 		amount: event.args.amount,
 		direction: event.args.direction,
-		oracle: parseUnits(String(oraclePrice), 36 - decimals),
+		oracle: oraclePrice / BigInt(10 ** (36 - decimals)),
 	});
 
 	// await context.db
@@ -114,7 +114,7 @@ ponder.on('LeverageMorpho:Loan', async ({ event, context }) => {
 	// 	}));
 });
 ponder.on('LeverageMorpho:Executed', async ({ event, context }) => {
-	console.log(event.args);
+	// console.log(event.args);
 
 	const counter = await context.db
 		.insert(Counter)
