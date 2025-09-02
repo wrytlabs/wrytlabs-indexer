@@ -1,5 +1,5 @@
-import { ponder } from '@/generated';
-import { Counter, LeverageMorphoCollateralFlat, LeverageMorphoExecuteFlat, LeverageMorphoLoanFlat } from '../ponder.schema';
+import { ponder } from 'ponder:registry';
+import { Counter, LeverageMorphoCollateralFlat, LeverageMorphoExecuteFlat, LeverageMorphoLoanFlat } from 'ponder:schema';
 import { parseUnits } from 'viem';
 import { IERC20ABI, IOracleABI } from '@wrytlabs/frankencoin-utils';
 

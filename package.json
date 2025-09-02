@@ -12,7 +12,6 @@
 		"typecheck": "tsc"
 	},
 	"dependencies": {
-		"@ponder/core": "^0.7.17",
 		"@wrytlabs/frankencoin-utils": "^0.0.2",
 		"@wrytlabs/manager-core": "^0.0.4",
 		"hono": "^4.6.14",

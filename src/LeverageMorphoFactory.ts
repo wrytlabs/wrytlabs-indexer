@@ -1,5 +1,5 @@
-import { ponder } from '@/generated';
-import { Counter, LeverageMorphoFactory } from '../ponder.schema';
+import { ponder } from 'ponder:registry';
+import { Counter, LeverageMorphoFactory } from 'ponder:schema';
 import { erc20Abi } from 'viem';
 
 ponder.on('LeverageMorphoFactory:Created', async ({ event, context }) => {
